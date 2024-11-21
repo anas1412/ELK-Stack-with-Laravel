@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+    app:
+        image: php:8.2-fpm
+        container_name: laravel_app
+        working_dir: /var/www/html
+        volumes:
+            - .:/var/www/html
+        ports:
+            - 8000:8000
+        depends_on:
+            - mysql
+        networks:
+            - laravel-net
+
+    mysql:
+        image: mysql:8.0
+        container_name: laravel_mysql
+        ports:
+            - 3306:3306
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: laravel
+            MYSQL_USER: laravel
+            MYSQL_PASSWORD: laravel
+        volumes:
+            - mysql_data:/var/lib/mysql
+        networks:
+            - laravel-net
+
+    artisan:
+        image: php:8.2-cli
+        container_name: artisan
+        working_dir: /var/www/html
+        volumes:
+            - .:/var/www/html
+        networks:
+            - laravel-net
+        entrypoint: ["php", "/var/www/html/artisan"]
+
+networks:
+    laravel-net:
+
+volumes:
+    mysql_data:
