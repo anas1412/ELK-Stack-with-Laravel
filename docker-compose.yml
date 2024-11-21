@@ -2,45 +2,61 @@ version: "3.8"
 
 services:
     app:
-        image: php:8.2-fpm
-        container_name: laravel_app
-        working_dir: /var/www/html
+        build:
+            context: .
+        container_name: laravel-app
         volumes:
             - .:/var/www/html
         ports:
-            - 8000:8000
+            - "8000:9000"
         depends_on:
             - mysql
+            - elasticsearch
+            - kibana
         networks:
-            - laravel-net
+            - app-network
 
     mysql:
-        image: mysql:8.0
-        container_name: laravel_mysql
-        ports:
-            - 3306:3306
+        image: mysql:5.7
+        container_name: mysql-db
         environment:
             MYSQL_ROOT_PASSWORD: root
             MYSQL_DATABASE: laravel
-            MYSQL_USER: laravel
-            MYSQL_PASSWORD: laravel
-        volumes:
-            - mysql_data:/var/lib/mysql
+            MYSQL_USER: user
+            MYSQL_PASSWORD: password
+        ports:
+            - "3306:3306"
         networks:
-            - laravel-net
+            - app-network
 
-    artisan:
-        image: php:8.2-cli
-        container_name: artisan
-        working_dir: /var/www/html
-        volumes:
-            - .:/var/www/html
+    elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.10.0
+        container_name: elasticsearch
+        environment:
+            discovery.type: single-node
+        ports:
+            - "9200:9200"
         networks:
-            - laravel-net
-        entrypoint: ["php", "/var/www/html/artisan"]
+            - app-network
+
+    kibana:
+        image: docker.elastic.co/kibana/kibana:7.10.0
+        container_name: kibana
+        ports:
+            - "5601:5601"
+        networks:
+            - app-network
+
+    logstash:
+        image: docker.elastic.co/logstash/logstash:7.10.0
+        container_name: logstash
+        volumes:
+            - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+        depends_on:
+            - elasticsearch
+        networks:
+            - app-network
 
 networks:
-    laravel-net:
-
-volumes:
-    mysql_data:
+    app-network:
+        driver: bridge
