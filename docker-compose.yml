@@ -14,7 +14,7 @@ services:
             - mysql
             - elasticsearch
             - kibana
-            - logstash # Added logstash here since the app depends on it for logging
+            - logstash # App depends on Logstash for logging
         networks:
             - app-network
 
@@ -32,7 +32,7 @@ services:
             - app-network
 
     elasticsearch:
-        image: docker.elastic.co/elasticsearch/elasticsearch:7.10.0
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3 # Use a compatible version (adjusted)
         container_name: elasticsearch
         environment:
             discovery.type: single-node
@@ -42,7 +42,7 @@ services:
             - app-network
 
     kibana:
-        image: docker.elastic.co/kibana/kibana:7.10.0
+        image: docker.elastic.co/kibana/kibana:7.9.3 # Use a compatible version (adjusted)
         container_name: kibana
         ports:
             - "5601:5601"
@@ -50,7 +50,7 @@ services:
             - app-network
 
     logstash:
-        image: docker.elastic.co/logstash/logstash:7.10.0
+        image: docker.elastic.co/logstash/logstash:7.9.3 # Updated to a compatible version
         container_name: logstash
         volumes:
             - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf # Mount the Logstash config file
