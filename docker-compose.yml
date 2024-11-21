@@ -6,13 +6,15 @@ services:
             context: .
         container_name: laravel-app
         volumes:
-            - .:/var/www/html
+            - .:/var/www/html # Mount the entire Laravel project
+            - ./storage/logs:/var/log/laravel # Mount Laravel's storage/logs directory for Logstash
         ports:
-            - "8000:9000"
+            - "8000:9000" # Expose the app on port 8000 for Laravel
         depends_on:
             - mysql
             - elasticsearch
             - kibana
+            - logstash # Added logstash here since the app depends on it for logging
         networks:
             - app-network
 
@@ -51,7 +53,8 @@ services:
         image: docker.elastic.co/logstash/logstash:7.10.0
         container_name: logstash
         volumes:
-            - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+            - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf # Mount the Logstash config file
+            - ./storage/logs:/var/log/laravel # Mount Laravel's storage/logs directory for Logstash to read logs
         depends_on:
             - elasticsearch
         networks:
