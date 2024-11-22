@@ -30,17 +30,17 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy Laravel application
 COPY . .
 
-# Install PHP dependencies with Composer (including dev dependencies)
-RUN composer install --optimize-autoloader --no-scripts
+# Install PHP dependencies with Composer (production only)
+RUN composer install --no-dev --optimize-autoloader
 
-# Set permissions
+# Set proper permissions for Laravel directories
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Expose port 9000 for PHP-FPM (used in Nginx)
+# Expose port 9000 for PHP-FPM (used by Nginx)
 EXPOSE 9000
 
-# Set up Laravel configuration and caches
+# Set up Laravel configuration and caches (only if config is correct)
 RUN php artisan config:cache \
     && php artisan route:cache \
     && php artisan view:cache

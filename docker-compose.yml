@@ -8,6 +8,7 @@ services:
             - .:/var/www/html # Mount the Laravel project directory
             - ./storage/logs:/var/log/laravel # Mount Laravel logs for Logstash
         environment:
+            - APP_URL=http://localhost
             - APP_ENV=local
             - APP_DEBUG=true
             - APP_KEY=base64:d3G8x1u68ubU7h0pZH4WLbgZdW+lzp1wGXApGK+oj+s= # Use your actual APP_KEY here
@@ -19,9 +20,6 @@ services:
             - DB_PASSWORD=password
         depends_on:
             - mysql
-            - elasticsearch
-            - kibana
-            - logstash
         networks:
             - app-network
 
@@ -49,41 +47,25 @@ services:
             MYSQL_USER: user
             MYSQL_PASSWORD: password
         ports:
-            - "3306:3306"
+            - "3306:3306" # Ensure MySQL is accessible on port 3306
         networks:
             - app-network
 
-    # Elasticsearch service
-    elasticsearch:
-        image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
-        container_name: elasticsearch
+    # phpMyAdmin service
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin:latest
+        container_name: phpmyadmin
         environment:
-            discovery.type: single-node
+            - PMA_HOST=mysql # MySQL service name (phpMyAdmin connects to MySQL)
+            - PMA_USER=user
+            - PMA_PASSWORD=password
         ports:
-            - "9200:9200"
+            - "8080:80" # Map host port 8080 to phpMyAdmin container port 80
         networks:
             - app-network
-
-    # Kibana service (for Elasticsearch visualization)
-    kibana:
-        image: docker.elastic.co/kibana/kibana:8.10.2
-        container_name: kibana
-        ports:
-            - "5601:5601"
-        networks:
-            - app-network
-
-    # Logstash service
-    logstash:
-        image: docker.elastic.co/logstash/logstash:8.10.2
-        container_name: logstash
-        volumes:
-            - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
-            - ./storage/logs:/var/log/laravel # Mount Laravel logs for Logstash to read
         depends_on:
-            - elasticsearch
-        networks:
-            - app-network
+            - mysql
+        restart: unless-stopped
 
 networks:
     app-network:
