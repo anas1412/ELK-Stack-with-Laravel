@@ -34,7 +34,7 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader
 
 # Generate Laravel APP_KEY
-RUN php artisan key:generate
+#RUN php artisan key:generate
 
 # Set proper permissions for Laravel directories
 RUN chown -R www-data:www-data /var/www/html \
