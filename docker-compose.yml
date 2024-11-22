@@ -9,6 +9,7 @@ services:
             - ./storage/logs:/var/log/laravel # Mount Laravel logs for Logstash
         environment:
             - APP_URL=http://localhost
+            - APP_KEY=base64:dsaCJ/NJaVH8UqNTOTFwaV7ZGcc8w1cw9yxW3RLYayc=
             - APP_ENV=local
             - APP_DEBUG=true
             - DB_CONNECTION=mysql
