@@ -1,5 +1,4 @@
 services:
-    # Laravel app service (PHP-FPM)
     app:
         build:
             context: .
@@ -25,7 +24,7 @@ services:
         networks:
             - app-network
 
-    # Nginx Web server
+        # Nginx Web server
     webserver:
         image: nginx:stable-alpine
         container_name: laravel-web
@@ -39,7 +38,7 @@ services:
         networks:
             - app-network
 
-    # MySQL database service
+        # MySQL database service
     mysql:
         image: mysql:8.0
         container_name: mysql-db
@@ -53,7 +52,7 @@ services:
         networks:
             - app-network
 
-    # phpMyAdmin service
+        # phpMyAdmin service
     phpmyadmin:
         image: phpmyadmin/phpmyadmin:latest
         container_name: phpmyadmin
