@@ -8,6 +8,10 @@ services:
         volumes:
             - .:/var/www/html # Mount the Laravel project
             - ./storage/logs:/var/log/laravel # Mount Laravel's logs for Logstash
+        environment:
+            - APP_ENV=production
+            - APP_DEBUG=false
+            - APP_KEY=base64:d3G8x1u68ubU7h0pZH4WLbgZdW+lzp1wGXApGK+oj+s=
         depends_on:
             - mysql
             - elasticsearch

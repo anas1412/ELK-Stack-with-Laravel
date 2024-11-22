@@ -27,12 +27,20 @@ RUN apt-get update && apt-get install -y \
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy existing application code into the container
+# Copy Laravel application
 COPY . .
+
+# Install PHP dependencies with Composer in production mode
+RUN composer install --no-dev --optimize-autoloader
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Cache Laravel configuration, routes, and views
+RUN php artisan config:cache \
+    && php artisan route:cache \
+    && php artisan view:cache
 
 # Expose port 9000 for PHP-FPM
 EXPOSE 9000
