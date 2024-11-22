@@ -21,8 +21,6 @@ services:
             - "9000" # Expose port internally (no need for external port mapping)
         depends_on:
             - mysql
-        networks:
-            - app-network
 
         # Nginx Web server
     webserver:
@@ -35,8 +33,6 @@ services:
             - ./nginx.conf:/etc/nginx/conf.d/default.conf # Nginx configuration
         depends_on:
             - app
-        networks:
-            - app-network
 
         # MySQL database service
     mysql:
@@ -49,8 +45,6 @@ services:
             MYSQL_PASSWORD: password
         expose:
             - "3306" # Expose MySQL port internally (no external port mapping)
-        networks:
-            - app-network
 
         # phpMyAdmin service
     phpmyadmin:
@@ -62,12 +56,6 @@ services:
             - PMA_PASSWORD=password
         ports:
             - "8080:80" # Map host port 8080 to phpMyAdmin container port 80
-        networks:
-            - app-network
         depends_on:
             - mysql
         restart: unless-stopped
-
-networks:
-    app-network:
-        driver: bridge
