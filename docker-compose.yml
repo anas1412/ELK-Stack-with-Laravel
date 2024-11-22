@@ -18,7 +18,7 @@ services:
             - DB_USERNAME=user
             - DB_PASSWORD=password
         ports:
-            - "9000:9000" # Map host port 8000 to container's port 80
+            - "9000:80" # Map host port 9000 to container's port 80"
         depends_on:
             - mysql
         networks:
