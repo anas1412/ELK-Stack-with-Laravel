@@ -14,7 +14,7 @@ COPY nginx.conf /etc/nginx/nginx.conf
 COPY index.php /var/www/html/
 
 # Expose port 80 for the web server
-EXPOSE 80
+EXPOSE 9000
 
 # Start both NGINX and PHP-FPM in the container
 CMD service nginx start && php-fpm
