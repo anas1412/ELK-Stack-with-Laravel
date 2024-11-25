@@ -8,16 +8,29 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      # Step 1: Checkout the code
+      - name: Checkout Code
+        uses: actions/checkout@v2
 
+      # Step 2: Set up Docker and Docker Compose
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      # Step 3: Build Docker Images
       - name: Build Docker Images
         run: docker-compose build
 
+      # Step 4: Run Laravel Tests
       - name: Run Tests
         run: docker-compose run app php artisan test
 
+      # Step 5: Deploy the Application
       - name: Deploy
         if: success()
         run: |
           docker-compose up -d
-          docker-compose exec app php artisan migrate --force
+          docker-compose exec app php artisan migrate --seed --force
+          echo "Application deployed successfully."
+          docker-compose down
