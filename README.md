@@ -27,15 +27,9 @@ A comprehensive Laravel application deployment setup with Docker, ELK Stack (Ela
 ```bash
 ├── apache/
 │   └── 000-default.conf
-├── elk/
-│   ├── elasticsearch/
-│   │   └── elasticsearch.yml
-│   ├── logstash/
-│   │   ├── logstash.yml
+├── logstash/
 │   │   └── pipeline/
 │   │       └── laravel.conf
-│   └── kibana/
-│       └── kibana.yml
 ├── php/
 │   └── php.ini
 ├── src/
