@@ -78,6 +78,7 @@ services:
     container_name: logstash
     environment:
       - ELASTICSEARCH_HOSTS=elasticsearch:9200
+      - LOGSTASH_HOSTS=elasticsearch:9200
       #- ELASTICSEARCH_USERNAME=elastic
       #- ELASTICSEARCH_PASSWORD=elastic_password
       - LS_JAVA_OPTS=-Xmx1g -Xms1g #This limits Logstash to 1GB of heap memory

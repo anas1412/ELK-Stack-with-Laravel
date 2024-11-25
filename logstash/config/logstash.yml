@@ -1,3 +1,4 @@
 api.http.host: "0.0.0.0"
 xpack.monitoring.enabled: true
 pipeline.buffer.type: heap
+xpack.management.elasticsearch.hosts: ["http://elasticsearch:9200"]
