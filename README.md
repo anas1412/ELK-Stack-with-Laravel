@@ -1,6 +1,7 @@
 # ELK-Stack-with-Laravel
 
 A comprehensive Laravel application deployment setup with Docker, ELK Stack (Elasticsearch, Logstash, Kibana), Slack notifications, and automated backups to AWS S3.
+Check [ELK-Stack-with-Laravel on github](https://github.com/anas1412/ELK-Stack-with-Laravel) for more information.
 
 <img src="ELK-Stack-with-Laravel-Architecture.png" alt="ELK Stack Architecture">
 
