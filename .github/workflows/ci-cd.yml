@@ -18,23 +18,29 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y docker-compose
 
-      # Optional Step: Download a new laravel project
+      # Step 3: Install Composer
+      - name: Install Composer
+        run: |
+          curl -sS https://getcomposer.org/installer | php
+          sudo mv composer.phar /usr/local/bin/composer
+
+      # Optional Step: Download a new Laravel project or change this with your project URL
       - name: Set up a new Laravel project
         run: |
           cd /src
-          rm -rf add-your-laravel-project-here
+          rm -rf add-your-laravel-project-here  # Ensure clean start if needed
           composer create-project --prefer-dist laravel/laravel . --no-interaction
           cd ..
 
-      # Step 3: Build Docker Images
+      # Step 4: Build Docker Images
       - name: Build Docker Images
         run: docker-compose build
 
-      # Step 4: Run Laravel Tests
+      # Step 5: Run Laravel Tests
       - name: Run Tests
         run: docker-compose run app php artisan test
 
-      # Step 5: Deploy the Application
+      # Step 6: Deploy the Application
       - name: Deploy
         if: success()
         run: |
