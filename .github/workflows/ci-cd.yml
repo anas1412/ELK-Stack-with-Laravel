@@ -27,7 +27,8 @@ jobs:
       # Optional Step: Download a new Laravel project or change this with your project URL
       - name: Set up a new Laravel project
         run: |
-          cd /src
+          ls
+          cd ./src
           rm -rf add-your-laravel-project-here  # Ensure clean start if needed
           composer create-project --prefer-dist laravel/laravel . --no-interaction
           cd ..
