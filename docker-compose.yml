@@ -81,19 +81,16 @@ services:
       - ELASTICSEARCH_HOSTS=elasticsearch:9200
       #- ELASTICSEARCH_USERNAME=elastic
       #- ELASTICSEARCH_PASSWORD=elastic_password
-    depends_on:
-      - elasticsearch
+      - LS_JAVA_OPTS=-Xmx1g -Xms1g #This limits Logstash to 1GB of heap memory
     networks:
       - laravel-network
     volumes:
       - ./logstash/pipeline:/usr/share/logstash/pipeline
     ports:
       - "5044:5044" # Logstash input (optional)
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://elasticsearch:9200"]
-      interval: 10s
-      timeout: 10s
-      retries: 3
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
 
 networks:
   laravel-network:
