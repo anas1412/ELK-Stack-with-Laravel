@@ -2,6 +2,8 @@
 
 A comprehensive Laravel application deployment setup with Docker, ELK Stack (Elasticsearch, Logstash, Kibana), Slack notifications, and automated backups to AWS S3.
 
+<img src="ELK-Stack-with-Laravel-Architecture.png" alt="ELK Stack Architecture">
+
 ## 🚀 Features
 
 - PHP 8.2 with Apache
@@ -281,9 +283,6 @@ Backup Issues:
 ```bash
 # Check AWS credentials
 aws s3 ls s3://your-bucket
-
-# Manual backup trigger
-docker-compose exec app php artisan backup:run
 ```
 
 Log Collection Issues:
