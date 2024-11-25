@@ -1,0 +1,23 @@
+name: Laravel CI/CD
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build Docker Images
+        run: docker-compose build
+
+      - name: Run Tests
+        run: docker-compose run app php artisan test
+
+      - name: Deploy
+        if: success()
+        run: |
+          docker-compose up -d
+          docker-compose exec app php artisan migrate --force

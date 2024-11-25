@@ -1,0 +1,21 @@
+name: Database Backup
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # Daily at midnight
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Backup Database
+        run: |
+          mysqldump -h ${{ secrets.DB_HOST }} \
+                   -u ${{ secrets.DB_USERNAME }} \
+                   -p${{ secrets.DB_PASSWORD }} \
+                   ${{ secrets.DB_DATABASE }} > backup.sql
+
+      - name: Upload to S3
+        uses: aws-actions/aws-cli@v2
+        with:
+          args: s3 cp backup.sql s3://${{ secrets.AWS_BUCKET }}/backups/$(date +%Y-%m-%d)-backup.sql
