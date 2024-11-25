@@ -45,7 +45,7 @@ services:
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
-      - xpack.security.enabled=true # Disable security
+      - xpack.security.enabled=false # Disable security
       - ELASTIC_PASSWORD=elastic_password
       - ES_JAVA_OPTS=-Xmx2g -Xms2g #This limits Elasticsearch to 2GB of heap memory
     networks:
