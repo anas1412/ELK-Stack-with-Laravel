@@ -47,6 +47,8 @@ A comprehensive Laravel application deployment setup with Docker, ELK Stack (Ela
 
 ### Docker Environment Variables
 
+Change the following environment variables in your `docker-compose.yml` file:
+
 ```yaml
 # Laravel & MySQL
 DB_CONNECTION=mysql
@@ -55,21 +57,33 @@ DB_PORT=3306
 DB_DATABASE=laravel_db
 DB_USERNAME=root
 DB_PASSWORD=root_password
+```
 
-# ELK Stack
-ELASTIC_VERSION=8.12.0
-KIBANA_SYSTEM_PASSWORD=your_kibana_password
-ELASTIC_PASSWORD=your_elastic_password
+### GitHub Secrets Configuration
 
-# AWS Configuration
-AWS_ACCESS_KEY_ID=your_access_key
-AWS_SECRET_ACCESS_KEY=your_secret_key
-AWS_DEFAULT_REGION=your_region
-AWS_BUCKET=your_bucket_name
+Sensitive data such as AWS credentials and Slack webhook URLs should be stored securely as GitHub Secrets. To configure these:
 
-# Slack Configuration
-SLACK_WEBHOOK_URL=your_webhook_url
+1. Navigate to your GitHub repository and go to Settings → Secrets and variables → Actions.
 
+2. Add the following secrets:
+
+- `AWS_ACCESS_KEY_ID`: Your AWS Access Key.
+- `AWS_SECRET_ACCESS_KEY`: Your AWS Secret Key.
+- `AWS_DEFAULT_REGION`: The AWS region of your S3 bucket (e.g., us-east-1).
+- `AWS_BUCKET`: The name of your S3 bucket.
+- `SLACK_WEBHOOK_URL`: The URL for sending Slack notifications.
+
+### Example Workflow Reference
+
+Secrets are referenced directly in the GitHub Actions workflow like so:
+
+```yaml
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+  AWS_BUCKET: ${{ secrets.AWS_BUCKET }}
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 ```
 
 ## 🚀 Getting Started
