@@ -247,19 +247,47 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      # Step 1: Checkout the code
+      - name: Checkout Code
+        uses: actions/checkout@v2
 
+      # Step 2: Set up Docker and Docker Compose
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      # Step 3: Install Composer
+      - name: Install Composer
+        run: |
+          curl -sS https://getcomposer.org/installer | php
+          sudo mv composer.phar /usr/local/bin/composer
+
+      # Optional Step: Download a new Laravel project or change this with your project URL
+      - name: Set up a new Laravel project
+        run: |
+          ls
+          cd ./src
+          rm -rf add-your-laravel-project-here  # Ensure clean start if needed
+          composer create-project --prefer-dist laravel/laravel . --no-interaction
+          cd ..
+
+      # Step 4: Build Docker Images
       - name: Build Docker Images
         run: docker-compose build
 
+      # Step 5: Run Laravel Tests
       - name: Run Tests
         run: docker-compose run app php artisan test
 
+      # Step 6: Deploy the Application
       - name: Deploy
         if: success()
         run: |
           docker-compose up -d
-          docker-compose exec app php artisan migrate --force
+          docker-compose exec --no-TTY app php artisan migrate --force --no-interaction
+          echo "Application deployed successfully."
+          docker-compose down
 ```
 
 ## 🛟 Troubleshooting

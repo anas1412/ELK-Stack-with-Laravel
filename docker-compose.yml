@@ -14,13 +14,13 @@ services:
       - laravel-network
     depends_on:
       - mysql
-      - logstash # Ensure Logstash starts before Laravel for logging
+      - logstash
     command: >
       /bin/bash -c "/usr/local/bin/wait-for-it.sh mysql:3306 -- php artisan migrate && apache2-foreground"
     ports:
-      - "80:80" # Laravel app on port 80
+      - "80:80"
     volumes:
-      - ./php/php.ini:/usr/local/etc/php/php.ini # Use custom PHP configuration
+      - ./php/php.ini:/usr/local/etc/php/php.ini
       - ./apache/000-default.conf:/etc/apache2/sites-available/000-default.conf
 
   mysql:
@@ -33,28 +33,40 @@ services:
       - laravel-network
     volumes:
       - mysql-data:/var/lib/mysql
+      - ./mysql/logs:/var/log/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.16.1
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
-      - xpack.security.enabled=true
-      - ELASTIC_PASSWORD=elastic_password
+      - xpack.security.enabled=false # Disable security
+      #- ELASTIC_PASSWORD=elastic_password
+      - ES_JAVA_OPTS=-Xmx2g -Xms2g #This limits Elasticsearch to 2GB of heap memory
     networks:
       - laravel-network
     volumes:
       - es-data:/usr/share/elasticsearch/data
     ports:
       - "9200:9200" # Elasticsearch API access
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.16.1
     container_name: kibana
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - ELASTICSEARCH_USERNAME=elastic
-      - ELASTICSEARCH_PASSWORD=elastic_password
+      #- ELASTICSEARCH_USERNAME=elastic
+      #- ELASTICSEARCH_PASSWORD=elastic_password
     depends_on:
       - elasticsearch
     networks:
@@ -66,8 +78,9 @@ services:
     image: docker.elastic.co/logstash/logstash:8.16.1
     container_name: logstash
     environment:
-      - ELASTIC_PASSWORD=elastic_password
-      - SLACK_WEBHOOK_URL=your_slack_webhook_url
+      - ELASTICSEARCH_HOSTS=elasticsearch:9200
+      #- ELASTICSEARCH_USERNAME=elastic
+      #- ELASTICSEARCH_PASSWORD=elastic_password
     depends_on:
       - elasticsearch
     networks:
@@ -76,6 +89,11 @@ services:
       - ./logstash/pipeline:/usr/share/logstash/pipeline
     ports:
       - "5044:5044" # Logstash input (optional)
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://elasticsearch:9200"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
 
 networks:
   laravel-network:
