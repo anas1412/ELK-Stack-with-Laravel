@@ -46,6 +46,6 @@ jobs:
         if: success()
         run: |
           docker-compose up -d
-          docker-compose exec app php artisan migrate --force --no-interaction
+          docker-compose exec --no-TTY app php artisan migrate --force --no-interaction
           echo "Application deployed successfully."
           docker-compose down
