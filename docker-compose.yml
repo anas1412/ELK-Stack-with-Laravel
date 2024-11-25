@@ -63,10 +63,9 @@ services:
   kibana:
     image: docker.elastic.co/kibana/kibana:8.16.1
     container_name: kibana
+    restart: always
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - ELASTICSEARCH_USERNAME=elastic
-      - ELASTICSEARCH_PASSWORD=elastic_password
     depends_on:
       - elasticsearch
     networks:
@@ -79,8 +78,8 @@ services:
     container_name: logstash
     environment:
       - ELASTICSEARCH_HOSTS=elasticsearch:9200
-      - ELASTICSEARCH_USERNAME=elastic
-      - ELASTICSEARCH_PASSWORD=elastic_password
+      #- ELASTICSEARCH_USERNAME=elastic
+      #- ELASTICSEARCH_PASSWORD=elastic_password
       - LS_JAVA_OPTS=-Xmx1g -Xms1g #This limits Logstash to 1GB of heap memory
     networks:
       - laravel-network
