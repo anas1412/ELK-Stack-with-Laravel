@@ -90,8 +90,10 @@ services:
     ports:
       - "5044:5044" # Logstash input (optional)
     depends_on:
-      elasticsearch:
-        condition: service_healthy
+      - elasticsearch
+#    depends_on:
+#      elasticsearch:
+#        condition: service_healthy
 
 networks:
   laravel-network:
