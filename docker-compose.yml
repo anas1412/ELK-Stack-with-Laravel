@@ -45,8 +45,8 @@ services:
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
-      - xpack.security.enabled=false # Disable security
-      #- ELASTIC_PASSWORD=elastic_password
+      - xpack.security.enabled=true # Disable security
+      - ELASTIC_PASSWORD=elastic_password
       - ES_JAVA_OPTS=-Xmx2g -Xms2g #This limits Elasticsearch to 2GB of heap memory
     networks:
       - laravel-network
@@ -65,8 +65,8 @@ services:
     container_name: kibana
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      #- ELASTICSEARCH_USERNAME=elastic
-      #- ELASTICSEARCH_PASSWORD=elastic_password
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=elastic_password
     depends_on:
       - elasticsearch
     networks:
@@ -79,13 +79,14 @@ services:
     container_name: logstash
     environment:
       - ELASTICSEARCH_HOSTS=elasticsearch:9200
-      #- ELASTICSEARCH_USERNAME=elastic
-      #- ELASTICSEARCH_PASSWORD=elastic_password
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=elastic_password
       - LS_JAVA_OPTS=-Xmx1g -Xms1g #This limits Logstash to 1GB of heap memory
     networks:
       - laravel-network
     volumes:
       - ./logstash/pipeline:/usr/share/logstash/pipeline
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
     ports:
       - "5044:5044" # Logstash input (optional)
     depends_on:
