@@ -1,26 +1,40 @@
 services:
-    laravel-app:
-        image: php:8.2-fpm
+    app:
+        build:
+            context: . # Build from the current directory (where the Dockerfile is)
         container_name: laravel-app
-        volumes:
-            - ./src:/var/www/html
+        environment:
+            - DB_CONNECTION=mysql
+            - DB_HOST=mysql
+            - DB_PORT=3306
+            - DB_DATABASE=laravel_db
+            - DB_USERNAME=root
+            - DB_PASSWORD=root_password
         networks:
-            - app-network
-        # No need to expose port 80, since it's not directly handling HTTP traffic
-
-    nginx:
-        image: nginx:latest
-        container_name: nginx-container
+            - laravel-network
         depends_on:
-            - laravel-app
-        volumes:
-            - ./nginx.conf:/etc/nginx/nginx.conf
-            - ./src:/var/www/html
+            - mysql # Ensure MySQL container starts before Laravel
+        command: >
+            /bin/bash -c "/usr/local/bin/wait-for-it.sh mysql:3306 -- php artisan migrate && apache2-foreground"  # Wait for MySQL, then run migration and start Apache
         ports:
-            - "80:80" # Exposing port 80 for HTTP traffic
+            - "8080:80" # Expose Laravel app on port 8080
+
+    mysql:
+        image: mysql:8
+        container_name: laravel-mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: root_password
+            MYSQL_DATABASE: laravel_db
         networks:
-            - app-network
+            - laravel-network
+        volumes:
+            - mysql-data:/var/lib/mysql # Volume for MySQL data persistence
+        ports:
+            - "3306:3306" # Expose MySQL port 3306 for external access (optional)
 
 networks:
-    app-network:
+    laravel-network:
         driver: bridge
+
+volumes:
+    mysql-data: # Define the volume for MySQL data storage

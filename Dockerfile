@@ -1,20 +1,41 @@
-# Use PHP 8.2 with FPM (FastCGI Process Manager) as the base image
-FROM php:8.2-fpm
+# Step 1: Use PHP 8.2 with Apache base image
+FROM php:8.2-apache
 
-# Install NGINX
-RUN apt-get update && apt-get install -y nginx
+# Step 2: Install system dependencies for Laravel and Apache
+RUN apt-get update && apt-get install -y \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    git \
+    unzip \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd pdo pdo_mysql
 
-# Remove the default server configuration from NGINX
-RUN rm /etc/nginx/sites-enabled/default
+# Step 3: Enable mod_rewrite for Apache (needed for Laravel routes)
+RUN a2enmod rewrite
 
-# Copy the custom NGINX configuration file into the container
-COPY nginx.conf /etc/nginx/nginx.conf
+# Step 4: Install Composer (for managing Laravel dependencies)
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Copy the PHP files into the container (your PHP application)
-COPY index.php /var/www/html/
+# Step 5: Set up working directory in the container
+WORKDIR /var/www/html
 
-# Expose port 80 for the web server
-EXPOSE 9000
+# Step 6: Copy the contents of the 'src' folder into /var/www/html
+COPY ./src/. /var/www/html/
 
-# Start both NGINX and PHP-FPM in the container
-CMD service nginx start && php-fpm
+# Step 7: Copy custom Apache config to container
+COPY ./apache/000-default.conf /etc/apache2/sites-available/000-default.conf
+
+# Copy the wait-for-it script into the container
+COPY wait-for-it.sh /usr/local/bin/wait-for-it.sh
+RUN chmod +x /usr/local/bin/wait-for-it.sh
+
+# Step 8: Install Laravel's PHP dependencies
+RUN composer install --no-interaction --optimize-autoloader
+
+# Step 9: Set proper permissions for Laravel's storage and cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Step 10: Expose the Apache port 80
+EXPOSE 80
