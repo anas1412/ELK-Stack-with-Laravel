@@ -85,7 +85,14 @@ cd ELK-Stack-with-Laravel
 
 ```bash
 cd src
-git clone [your-project-url]
+rm -rf add-your-laravel-project-here && git clone [your-project-url]
+```
+
+OR if you want to test it out on a new laravel project before:
+
+```bash
+cd src
+rm -rf add-your-laravel-project-here && composer create-project laravel/laravel .
 ```
 
 ### Start the stack:
