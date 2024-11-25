@@ -82,6 +82,7 @@ services:
       #- ELASTICSEARCH_USERNAME=elastic
       #- ELASTICSEARCH_PASSWORD=elastic_password
       - LS_JAVA_OPTS=-Xmx1g -Xms1g #This limits Logstash to 1GB of heap memory
+      - LOGSTASH_LOG_LEVEL=debug # Add debug level for more detailed logs
     networks:
       - laravel-network
     volumes:
@@ -91,6 +92,10 @@ services:
       - "5044:5044" # Logstash input (optional)
     depends_on:
       - elasticsearch
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://elasticsearch:9200"]
+      interval: 10s
+      retries: 5
 #    depends_on:
 #      elasticsearch:
 #        condition: service_healthy
