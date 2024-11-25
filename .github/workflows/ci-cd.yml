@@ -18,6 +18,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y docker-compose
 
+      # Optional Step: Download a new laravel project
+      - name: Set up a new Laravel project
+        run: |
+          cd /src
+          rm -rf add-your-laravel-project-here
+          composer create-project --prefer-dist laravel/laravel . --no-interaction
+          cd ..
+
       # Step 3: Build Docker Images
       - name: Build Docker Images
         run: docker-compose build
