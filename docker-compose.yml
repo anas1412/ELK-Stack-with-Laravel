@@ -107,9 +107,21 @@ services:
       test: ["CMD", "curl", "-f", "http://elasticsearch:9200"]
       interval: 10s
       retries: 5
-#    depends_on:
-#      elasticsearch:
-#        condition: service_healthy
+  #    depends_on:
+  #      elasticsearch:
+  #        condition: service_healthy
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.9.1
+    container_name: filebeat
+    volumes:
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/log:/var/log:ro
+    networks:
+      - laravel-network
+    depends_on:
+      - logstash
 
 networks:
   laravel-network:
