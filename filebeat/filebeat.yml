@@ -2,7 +2,7 @@ filebeat.inputs:
   - type: log
     enabled: true
     paths:
-      - /var/www/html/storage/logs/laravel*.log
+      - /var/www/html/storage/logs/laravel.log
 
 # Comment out the Logstash output section
 # output.logstash:
