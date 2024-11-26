@@ -100,7 +100,6 @@ services:
     volumes:
       - ./logstash/pipeline:/usr/share/logstash/pipeline
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
-      - ls_data:/usr/share/logstash/data
       - laravel-logs:/var/www/html/storage/logs/
     ports:
       - "5044:5044"
@@ -115,27 +114,12 @@ services:
   #      elasticsearch:
   #        condition: service_healthy
 
-  filebeat:
-    image: docker.elastic.co/beats/filebeat:7.9.1
-    container_name: filebeat
-    restart: always
-    volumes:
-      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
-      - ./laravel-logs:/var/www/html/storage/logs/
-      - /var/lib/docker/containers:/var/lib/docker/containers
-      - /var/log:/var/log
-    networks:
-      - laravel-network
-    depends_on:
-      - logstash
-
 networks:
   laravel-network:
     driver: bridge
 
 volumes:
   mysql-data:
-  ls_data:
   es-data:
   kb_data:
   laravel-logs:
