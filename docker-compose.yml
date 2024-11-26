@@ -23,6 +23,7 @@ services:
     volumes:
       - ./php/php.ini:/usr/local/etc/php/php.ini
       - ./apache/000-default.conf:/etc/apache2/sites-available/000-default.conf
+      - .laravel-logs:/var/www/html/storage/logs/laravel*.log
 
   mysql:
     image: mysql:8
@@ -119,6 +120,7 @@ services:
     restart: always
     volumes:
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:rw
+      - .laravel-logs:/var/www/html/storage/logs/laravel*.log
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/log:/var/log:ro
     networks:
@@ -135,3 +137,4 @@ volumes:
   ls_data:
   es-data:
   kb_data:
+  laravel-logs:
