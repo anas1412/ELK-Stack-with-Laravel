@@ -115,9 +115,8 @@ services:
   filebeat:
     image: docker.elastic.co/beats/filebeat:7.9.1
     container_name: filebeat
-    entrypoint: /bin/sh -c "chmod go-w /usr/share/filebeat/filebeat.yml && /usr/local/bin/docker-entrypoint"
     volumes:
-      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:rw
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/log:/var/log:ro
     networks:
