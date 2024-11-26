@@ -4,8 +4,9 @@ filebeat.inputs:
     paths:
       - /var/www/html/storage/logs/laravel*.log
 
-output.logstash:
-  hosts: ["logstash:5044"]
+# Comment out the Logstash output section
+# output.logstash:
+#   hosts: ["logstash:5044"]
 
 output.elasticsearch:
   hosts: ["elasticsearch:9200"]
