@@ -119,7 +119,7 @@ services:
     container_name: filebeat
     restart: always
     volumes:
-      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:rw
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
       - .laravel-logs:/var/www/html/storage/logs/laravel*.log
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/log:/var/log:ro
