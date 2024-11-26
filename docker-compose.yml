@@ -100,6 +100,7 @@ services:
     volumes:
       - ./logstash/pipeline:/usr/share/logstash/pipeline
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - logstash-data:/usr/share/logstash/data # Persist the data directory
       - laravel-logs:/var/www/html/storage/logs/
     ports:
       - "5044:5044"
@@ -123,3 +124,4 @@ volumes:
   es-data:
   kb_data:
   laravel-logs:
+  logstash-data:
