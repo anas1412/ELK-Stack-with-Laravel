@@ -121,7 +121,7 @@ services:
     restart: always
     volumes:
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
-      - .laravel-logs:/var/www/html/storage/logs/laravel*.log
+      - ./laravel-logs:/var/www/html/storage/logs/
       - /var/lib/docker/containers:/var/lib/docker/containers
       - /var/log:/var/log
     networks:

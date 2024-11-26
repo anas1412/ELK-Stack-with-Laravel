@@ -1,40 +1,141 @@
 services:
-    app:
-        build:
-            context: . # Build from the current directory (where the Dockerfile is)
-        container_name: laravel-app
-        environment:
-            - DB_CONNECTION=mysql
-            - DB_HOST=mysql
-            - DB_PORT=3306
-            - DB_DATABASE=laravel_db
-            - DB_USERNAME=root
-            - DB_PASSWORD=root_password
-        networks:
-            - laravel-network
-        depends_on:
-            - mysql # Ensure MySQL container starts before Laravel
-        command: >
-            /bin/bash -c "/usr/local/bin/wait-for-it.sh mysql:3306 -- php artisan migrate && apache2-foreground"  # Wait for MySQL, then run migration and start Apache
-        ports:
-            - "8080:80" # Expose Laravel app on port 8080
+  app:
+    build:
+      context: .
+    container_name: laravel-app
+    restart: always
+    environment:
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=laravel_db
+      - DB_USERNAME=root
+      - DB_PASSWORD=root_password
+    networks:
+      - laravel-network
+    depends_on:
+      - mysql
+      - logstash
+    command: >
+      /bin/bash -c "/usr/local/bin/wait-for-it.sh mysql:3306 -- php artisan migrate && apache2-foreground"
+    ports:
+      - "80:80"
+    volumes:
+      - ./php/php.ini:/usr/local/etc/php/php.ini
+      - ./apache/000-default.conf:/etc/apache2/sites-available/000-default.conf
+      - ./laravel-logs:/var/www/html/storage/logs/
 
-    mysql:
-        image: mysql:8
-        container_name: laravel-mysql
-        environment:
-            MYSQL_ROOT_PASSWORD: root_password
-            MYSQL_DATABASE: laravel_db
-        networks:
-            - laravel-network
-        volumes:
-            - mysql-data:/var/lib/mysql # Volume for MySQL data persistence
-        ports:
-            - "3306:3306" # Expose MySQL port 3306 for external access (optional)
+  mysql:
+    image: mysql:8
+    container_name: laravel-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=laravel_db
+    networks:
+      - laravel-network
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mysql/logs:/var/log/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.1
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false # Disable security
+      - ELASTIC_PASSWORD=elastic_password
+      - ES_JAVA_OPTS=-Xmx2g -Xms2g #This limits Elasticsearch to 2GB of heap memory
+      - http.host=0.0.0.0
+      - transport.host=0.0.0.0
+      - xpack.monitoring.enabled=true
+      - cluster.name=elasticsearch
+      - bootstrap.memory_lock=true
+    networks:
+      - laravel-network
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+      - ./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    ports:
+      - "9200:9200" # Elasticsearch API access
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.9.1
+    container_name: kibana
+    restart: always
+    ports:
+      - "5601:5601"
+    volumes:
+      - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+      - kb_data:/usr/share/kibana/data
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - laravel-network
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.9.1
+    container_name: logstash
+    restart: always
+    environment:
+      - ELASTICSEARCH_HOSTS=elasticsearch:9200
+      - LOGSTASH_HOSTS=elasticsearch:9200
+      #- ELASTICSEARCH_USERNAME=elastic
+      #- ELASTICSEARCH_PASSWORD=elastic_password
+      - LS_JAVA_OPTS=-Xmx1g -Xms1g #This limits Logstash to 1GB of heap memory
+      - LOGSTASH_LOG_LEVEL=debug # Add debug level for more detailed logs
+    networks:
+      - laravel-network
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ls_data:/usr/share/logstash/data
+      - laravel-logs:/var/www/html/storage/logs/
+    ports:
+      - "5044:5044"
+      - "9600:9600"
+    depends_on:
+      - elasticsearch
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://elasticsearch:9200"]
+      interval: 10s
+      retries: 5
+  #    depends_on:
+  #      elasticsearch:
+  #        condition: service_healthy
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.9.1
+    container_name: filebeat
+    restart: always
+    volumes:
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - ./laravel-logs:/var/www/html/storage/logs/
+      - /var/lib/docker/containers:/var/lib/docker/containers
+      - /var/log:/var/log
+    networks:
+      - laravel-network
+    depends_on:
+      - logstash
 
 networks:
-    laravel-network:
-        driver: bridge
+  laravel-network:
+    driver: bridge
 
 volumes:
-    mysql-data: # Define the volume for MySQL data storage
+  mysql-data:
+  ls_data:
+  es-data:
+  kb_data:
+  laravel-logs:
