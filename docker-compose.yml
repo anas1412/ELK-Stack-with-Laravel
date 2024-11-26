@@ -86,6 +86,7 @@ services:
   logstash:
     image: docker.elastic.co/logstash/logstash:7.9.1
     container_name: logstash
+    restart: always
     environment:
       - ELASTICSEARCH_HOSTS=elasticsearch:9200
       - LOGSTASH_HOSTS=elasticsearch:9200
@@ -115,6 +116,7 @@ services:
   filebeat:
     image: docker.elastic.co/beats/filebeat:7.9.1
     container_name: filebeat
+    restart: always
     volumes:
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:rw
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
