@@ -3,6 +3,7 @@ services:
     build:
       context: .
     container_name: laravel-app
+    restart: always
     environment:
       - DB_CONNECTION=mysql
       - DB_HOST=mysql
@@ -114,6 +115,12 @@ services:
   filebeat:
     image: docker.elastic.co/beats/filebeat:7.9.1
     container_name: filebeat
+    command:
+      [
+        "sh",
+        "-c",
+        "chmod go-w /usr/share/filebeat/filebeat.yml && /usr/local/bin/docker-entrypoint",
+      ]
     volumes:
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
