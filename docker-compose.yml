@@ -41,17 +41,23 @@ services:
       retries: 3
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.16.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.1
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false # Disable security
       - ELASTIC_PASSWORD=elastic_password
       - ES_JAVA_OPTS=-Xmx2g -Xms2g #This limits Elasticsearch to 2GB of heap memory
+      - http.host=0.0.0.0
+      - transport.host=0.0.0.0
+      - xpack.monitoring.enabled=false
+      - cluster.name=elasticsearch
+      - bootstrap.memory_lock=true
     networks:
       - laravel-network
     volumes:
       - es-data:/usr/share/elasticsearch/data
+      - ./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     ports:
       - "9200:9200" # Elasticsearch API access
     healthcheck:
@@ -61,20 +67,23 @@ services:
       retries: 5
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:8.16.1
+    image: docker.elastic.co/kibana/kibana:7.9.1
     container_name: kibana
     restart: always
+    ports:
+      - "5601:5601"
+    volumes:
+      - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+      - kb_data:/usr/share/kibana/data
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     depends_on:
       - elasticsearch
     networks:
       - laravel-network
-    ports:
-      - "5601:5601" # Kibana dashboard access
 
   logstash:
-    image: docker.elastic.co/logstash/logstash:8.16.1
+    image: docker.elastic.co/logstash/logstash:7.9.1
     container_name: logstash
     environment:
       - ELASTICSEARCH_HOSTS=elasticsearch:9200
@@ -88,8 +97,10 @@ services:
     volumes:
       - ./logstash/pipeline:/usr/share/logstash/pipeline
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ls_data:/usr/share/logstash/data
     ports:
-      - "5044:5044" # Logstash input (optional)
+      - "5044:5044"
+      - "9600:9600"
     depends_on:
       - elasticsearch
     healthcheck:
@@ -106,4 +117,6 @@ networks:
 
 volumes:
   mysql-data:
+  ls_data:
   es-data:
+  kb_data:
