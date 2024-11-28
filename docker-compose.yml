@@ -5,12 +5,7 @@ services:
     container_name: laravel-app
     restart: always
     environment:
-      - DB_CONNECTION=mysql
-      - DB_HOST=mysql
-      - DB_PORT=3306
-      - DB_DATABASE=laravel_db
-      - DB_USERNAME=root
-      - DB_PASSWORD=root_password
+      - DB_CONNECTION=sqlite
     networks:
       - laravel-network
     depends_on:
