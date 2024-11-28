@@ -26,6 +26,9 @@ COPY ./src/. /var/www/html/
 # Step 7: Copy custom Apache config to container
 COPY ./apache/000-default.conf /etc/apache2/sites-available/000-default.conf
 
+# Fix git problem
+RUN apt-get update && apt-get install -y git && git config --global --add safe.directory /var/www/html
+
 # Copy the wait-for-it script into the container
 COPY wait-for-it.sh /usr/local/bin/wait-for-it.sh
 RUN chmod +x /usr/local/bin/wait-for-it.sh
