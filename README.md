@@ -134,7 +134,6 @@ N.B:
 ### Start the stack:
 
 ```bash
-cd ..
 docker-compose up -d --build
 ```
 
