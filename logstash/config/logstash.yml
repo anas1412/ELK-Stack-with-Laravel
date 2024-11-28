@@ -2,7 +2,7 @@
 xpack.monitoring.elasticsearch.hosts: ["http://elasticsearch:9200"]
 
 # Remove or comment this line to avoid startup error
-# http.host: 0.0.0.0
+http.host: 0.0.0.0
 
 # You can add more Logstash-specific configurations here if needed
 path.logs: /var/log/logstash

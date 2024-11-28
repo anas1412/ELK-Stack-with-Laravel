@@ -90,7 +90,6 @@ services:
   logstash:
     image: docker.elastic.co/logstash/logstash:7.9.1
     container_name: logstash
-    restart: always
     environment:
       - ELASTICSEARCH_HOSTS=elasticsearch:9200
       - LOGSTASH_HOSTS=elasticsearch:9200
