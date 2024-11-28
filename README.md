@@ -4,6 +4,7 @@ A comprehensive Laravel application deployment setup integrating Docker, ELK Sta
 Check [ELK-Stack-with-Laravel on github](https://github.com/anas1412/ELK-Stack-with-Laravel) for more information.
 
 <img src="ELK-Stack-with-Laravel-Architecture.png" alt="ELK Stack Architecture">
+<img src="ELK-monitoring.png" alt="ELK Monitoring">
 
 ## 🚀 Features
 
