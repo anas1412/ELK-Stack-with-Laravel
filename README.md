@@ -84,11 +84,18 @@ Sensitive data such as AWS credentials and Slack webhook URLs should be stored s
 
 2. Add the following secrets:
 
-- `AWS_ACCESS_KEY_ID`: Your AWS Access Key.
-- `AWS_SECRET_ACCESS_KEY`: Your AWS Secret Key.
-- `AWS_DEFAULT_REGION`: The AWS region of your S3 bucket (e.g., us-east-1).
-- `AWS_BUCKET`: The name of your S3 bucket.
-- `SLACK_WEBHOOK_URL`: The URL for sending Slack notifications.
+| Secret Name             | Description                                              |
+| ----------------------- | -------------------------------------------------------- |
+| `DB_HOST`               | The host address of your database server.                |
+| `DB_PORT`               | The port of your database server (e.g., 3306 for MySQL). |
+| `DB_DATABASE`           | The name of the database to back up.                     |
+| `DB_USERNAME`           | The username for the database.                           |
+| `DB_PASSWORD`           | The password for the database.                           |
+| `AWS_BUCKET`            | The name of your S3 bucket where backups will be stored. |
+| `AWS_ACCESS_KEY_ID`     | Your AWS Access Key ID.                                  |
+| `AWS_SECRET_ACCESS_KEY` | Your AWS Secret Access Key.                              |
+| `AWS_DEFAULT_REGION`    | Your AWS region (e.g., `us-east-1`).                     |
+| `SLACK_WEBHOOK_URL`     | The Slack Webhook URL for sending notifications.         |
 
 ### Example Workflow Reference
 
@@ -290,21 +297,6 @@ jobs:
           --data '{"text":"❌ *Database Backup Failed!*\n- Repository: '${{ github.repository }}'\n- Workflow: '${{ github.workflow }}'\n- Job: '${{ github.job }}'\n- Time: '${{ github.event.date }}'"}' \
           ${{ secrets.SLACK_WEBHOOK_URL }}
 ```
-
-## 🔒 Secrets to Configure
-
-| Secret Name             | Description                                              |
-| ----------------------- | -------------------------------------------------------- |
-| `DB_HOST`               | The host address of your database server.                |
-| `DB_PORT`               | The port of your database server (e.g., 3306 for MySQL). |
-| `DB_DATABASE`           | The name of the database to back up.                     |
-| `DB_USERNAME`           | The username for the database.                           |
-| `DB_PASSWORD`           | The password for the database.                           |
-| `AWS_BUCKET`            | The name of your S3 bucket where backups will be stored. |
-| `AWS_ACCESS_KEY_ID`     | Your AWS Access Key ID.                                  |
-| `AWS_SECRET_ACCESS_KEY` | Your AWS Secret Access Key.                              |
-| `AWS_DEFAULT_REGION`    | Your AWS region (e.g., `us-east-1`).                     |
-| `SLACK_WEBHOOK_URL`     | The Slack Webhook URL for sending notifications.         |
 
 ## 📊 Monitoring & Alerts
 
