@@ -1,4 +1,4 @@
-# ELK Stack with Laravel and AWS S3 Backup
+# ELK Stack with Laravel and AWS S3 Backup & Slack Alerts
 
 <div align="center">
     <img src="https://github.com/anas1412/ELK-Stack-with-Laravel/actions/workflows/ci-cd.yml/badge.svg" alt="CI/CD Pipeline">
