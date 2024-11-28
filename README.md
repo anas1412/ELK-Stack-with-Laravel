@@ -447,9 +447,9 @@ pipeline.batch.delay: 50
 
 ### Short-term Improvements
 
-[] Implement comprehensive error handling.
+[] Improve the Slack notification configurations in Logstash
 
-[] Add more granular Slack notification configurations
+[] Implement comprehensive error handling.
 
 [] Enhance Kibana dashboard visualizations
 
