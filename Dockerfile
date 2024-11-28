@@ -38,9 +38,10 @@ RUN chmod +x /usr/local/bin/wait-for-it.sh
 # Step 10: Install Laravel's PHP dependencies
 RUN composer install --no-interaction --optimize-autoloader
 
-# Step 11: Set proper permissions for Laravel's storage and cache
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+# Step 9: Set proper permissions for all Laravel files
+RUN chown -R www-data:www-data /var/www/html
+RUN chmod -R 775 /var/www/html
+
 
 # Step 12: Expose the Apache port 80
 EXPOSE 80
