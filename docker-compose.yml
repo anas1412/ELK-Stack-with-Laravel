@@ -6,6 +6,8 @@ services:
     restart: always
     environment:
       - DB_CONNECTION=sqlite
+      - APP_ENV=local
+      - APP_DEBUG=true
     networks:
       - laravel-network
     depends_on:
