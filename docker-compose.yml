@@ -103,16 +103,12 @@ services:
     volumes:
       - ./logstash/pipeline:/usr/share/logstash/pipeline
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
-      - laravel-logs:/var/www/html/storage/logs/
+      - laravel-logs:./logs/
     ports:
       - "5044:5044"
       - "9600:9600"
     depends_on:
       - elasticsearch
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://elasticsearch:9200"]
-      interval: 10s
-      retries: 5
 
 networks:
   laravel-network:
