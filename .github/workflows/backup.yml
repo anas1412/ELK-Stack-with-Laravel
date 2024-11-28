@@ -11,6 +11,7 @@ jobs:
       - name: Backup Database
         run: |
           mysqldump -h ${{ secrets.DB_HOST }} \
+                   -P ${{ secrets.DB_PORT }} \
                    -u ${{ secrets.DB_USERNAME }} \
                    -p${{ secrets.DB_PASSWORD }} \
                    ${{ secrets.DB_DATABASE }} > backup.sql
