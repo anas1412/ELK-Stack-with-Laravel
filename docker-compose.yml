@@ -114,9 +114,6 @@ services:
       test: ["CMD", "curl", "-f", "http://elasticsearch:9200"]
       interval: 10s
       retries: 5
-  #    depends_on:
-  #      elasticsearch:
-  #        condition: service_healthy
 
 networks:
   laravel-network:
