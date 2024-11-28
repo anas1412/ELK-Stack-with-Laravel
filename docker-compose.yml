@@ -103,7 +103,7 @@ services:
     volumes:
       - ./logstash/pipeline:/usr/share/logstash/pipeline
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
-      - laravel-logs:./logs/
+      - ./laravel-logs:/var/www/html/storage/logs # Ensure Laravel logs are accessible to Logstash
     ports:
       - "5044:5044"
       - "9600:9600"
