@@ -245,23 +245,66 @@ name: Database Backup
 on:
   schedule:
     - cron: "0 0 * * *" # Daily at midnight
+  workflow_dispatch: # Allows manual triggering of the workflow
 
 jobs:
   backup:
     runs-on: ubuntu-latest
+
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
       - name: Backup Database
         run: |
+          TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
+          BACKUP_FILE="backup-$TIMESTAMP.sql"
           mysqldump -h ${{ secrets.DB_HOST }} \
-                   -u ${{ secrets.DB_USERNAME }} \
-                   -p${{ secrets.DB_PASSWORD }} \
-                   ${{ secrets.DB_DATABASE }} > backup.sql
+                    -P ${{ secrets.DB_PORT }} \
+                    -u ${{ secrets.DB_USERNAME }} \
+                    -p${{ secrets.DB_PASSWORD }} \
+                    ${{ secrets.DB_DATABASE }} > $BACKUP_FILE
+          echo "Backup created: $BACKUP_FILE"
 
       - name: Upload to S3
         uses: aws-actions/aws-cli@v2
         with:
-          args: s3 cp backup.sql s3://${{ secrets.AWS_BUCKET }}/backups/$(date +%Y-%m-%d)-backup.sql
+          args: s3 cp $BACKUP_FILE s3://${{ secrets.AWS_BUCKET }}/backups/$BACKUP_FILE
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: Cleanup
+        run: |
+          rm -f $BACKUP_FILE
+          echo "Local backup file deleted."
+
+  notify-failure:
+    runs-on: ubuntu-latest
+    if: failure() # Only run this job if the backup job fails
+    steps:
+      - name: Notify on Failure via Slack Webhook
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data '{"text":"❌ *Database Backup Failed!*\n- Repository: '${{ github.repository }}'\n- Workflow: '${{ github.workflow }}'\n- Job: '${{ github.job }}'\n- Time: '${{ github.event.date }}'"}' \
+          ${{ secrets.SLACK_WEBHOOK_URL }}
 ```
+
+## 🔒 Secrets to Configure
+
+| Secret Name             | Description                                              |
+| ----------------------- | -------------------------------------------------------- |
+| `DB_HOST`               | The host address of your database server.                |
+| `DB_PORT`               | The port of your database server (e.g., 3306 for MySQL). |
+| `DB_DATABASE`           | The name of the database to back up.                     |
+| `DB_USERNAME`           | The username for the database.                           |
+| `DB_PASSWORD`           | The password for the database.                           |
+| `AWS_BUCKET`            | The name of your S3 bucket where backups will be stored. |
+| `AWS_ACCESS_KEY_ID`     | Your AWS Access Key ID.                                  |
+| `AWS_SECRET_ACCESS_KEY` | Your AWS Secret Access Key.                              |
+| `AWS_DEFAULT_REGION`    | Your AWS region (e.g., `us-east-1`).                     |
+| `SLACK_WEBHOOK_URL`     | The Slack Webhook URL for sending notifications.         |
 
 ## 📊 Monitoring & Alerts
 

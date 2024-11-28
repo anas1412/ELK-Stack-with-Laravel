@@ -3,24 +3,47 @@ name: Database Backup
 on:
   schedule:
     - cron: "0 0 * * *" # Daily at midnight
+  workflow_dispatch: # Allows manual triggering of the workflow
 
 jobs:
   backup:
     runs-on: ubuntu-latest
+
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
       - name: Backup Database
         run: |
+          TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
+          BACKUP_FILE="backup-$TIMESTAMP.sql"
           mysqldump -h ${{ secrets.DB_HOST }} \
-                   -P ${{ secrets.DB_PORT }} \
-                   -u ${{ secrets.DB_USERNAME }} \
-                   -p${{ secrets.DB_PASSWORD }} \
-                   ${{ secrets.DB_DATABASE }} > backup.sql
+                    -P ${{ secrets.DB_PORT }} \
+                    -u ${{ secrets.DB_USERNAME }} \
+                    -p${{ secrets.DB_PASSWORD }} \
+                    ${{ secrets.DB_DATABASE }} > $BACKUP_FILE
+          echo "Backup created: $BACKUP_FILE"
 
       - name: Upload to S3
         uses: aws-actions/aws-cli@v2
         with:
-          args: s3 cp backup.sql s3://${{ secrets.AWS_BUCKET }}/backups/$(date +%Y-%m-%d)-backup.sql
+          args: s3 cp $BACKUP_FILE s3://${{ secrets.AWS_BUCKET }}/backups/$BACKUP_FILE
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: Cleanup
+        run: |
+          rm -f $BACKUP_FILE
+          echo "Local backup file deleted."
+
+  notify-failure:
+    runs-on: ubuntu-latest
+    if: failure() # Only run this job if the backup job fails
+    steps:
+      - name: Notify on Failure via Slack Webhook
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data '{"text":"❌ *Database Backup Failed!*\n- Repository: '${{ github.repository }}'\n- Workflow: '${{ github.workflow }}'\n- Job: '${{ github.job }}'\n- Time: '${{ github.event.date }}'"}' \
+          ${{ secrets.SLACK_WEBHOOK_URL }}
