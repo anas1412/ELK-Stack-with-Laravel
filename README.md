@@ -1,6 +1,6 @@
 # ELK-Stack-with-Laravel
 
-A comprehensive Laravel application deployment setup with Docker, ELK Stack (Elasticsearch, Logstash, Kibana), Slack notifications, and automated backups to AWS S3.
+A comprehensive Laravel application deployment setup integrating Docker, ELK Stack (Elasticsearch, Logstash, Kibana), with advanced logging, monitoring, and automated DevOps features.
 Check [ELK-Stack-with-Laravel on github](https://github.com/anas1412/ELK-Stack-with-Laravel) for more information.
 
 <img src="ELK-Stack-with-Laravel-Architecture.png" alt="ELK Stack Architecture">
@@ -20,10 +20,9 @@ Check [ELK-Stack-with-Laravel on github](https://github.com/anas1412/ELK-Stack-w
 
 ## 📋 Prerequisites
 
-- Docker and Docker Compose installed
+- Git, Docker and Docker Compose installed
 - AWS Account with S3 access
-- Slack Workspace with API access
-- Git (optional, for cloning the repository)
+- Slack Workspace with API access (optional for slack alerts)
 
 ## 🏗️ Project Structure
 
@@ -106,14 +105,20 @@ cd ELK-Stack-with-Laravel
 
 ### Add a laravel project:
 
-Add your own project and renaume it to `src/`. Ensure the project is properly configured and accessible.
+OPTION 1: Add your own project and renaume it to `src/`. Ensure the project is properly configured and accessible.
 
 ```bash
 git clone [your-project-url]
 mv [your-project-name] /src
 ```
 
-OR if you want to test it out on a new laravel project before moving forward:
+OPTION 2: add your files if they already exist:
+
+```bash
+mv /path/to/your/laravel/project src/
+```
+
+OPTION 3: if you want to test it out on a new laravel project before moving forward:
 
 ```bash
 composer create-project laravel/laravel src
@@ -282,6 +287,8 @@ Alerts are triggered for:
 
 ### GitHub Actions Workflow (ci-cd.yml)
 
+Here you can configure your CI/CD pipeline to automate the deployment process. This includes building, testing, and deploying your Laravel application. You can customize the workflow to fit your specific needs.
+
 ```yaml
 name: Laravel CI/CD
 
@@ -358,11 +365,14 @@ aws s3 ls s3://your-bucket
 Log Collection Issues:
 
 ```bash
-# Restart Logstash
-docker-compose restart logstash
+# Check Elasticsearch
+curl -XGET 'localhost:9200/_cluster/health?pretty'
 
-# Check Logstash configuration
-docker-compose exec logstash logstash --config.test_and_exit
+# Logstash logs
+docker logs logstash
+
+# Laravel application logs
+docker-compose exec app tail -f /var/www/html/storage/logs/laravel.log
 ```
 
 ## 📈 Performance Optimization
@@ -382,6 +392,52 @@ pipeline.batch.size: 125
 pipeline.batch.delay: 50
 ```
 
+## 📝 TODO List
+
+### Short-term Improvements
+
+[] Implement comprehensive error handling.
+
+[] Add more granular Slack notification configurations
+
+[] Enhance Kibana dashboard visualizations
+
+[] Create more detailed logging filters
+
+### Performance Optimization & Security Enhancements
+
+[] Fine-tune Elasticsearch memory settings
+
+[] Implement log rotation strategies
+
+[] Add caching mechanisms
+
+[] Enable Elasticsearch security features
+
+[] Implement SSL/TLS for services
+
+### Monitoring & Observability
+
+[] Integrate application performance monitoring (APM)
+
+[] Create custom Grafana dashboards
+
+[] Set up more advanced alerting rules
+
+### DevOps & Automation
+
+[] Develop rollback strategies
+
+[] Create staging environment configurations
+
+[] Automate dependency updates
+
+[] Implement infrastructure-as-code (IaC)
+
 ## 📄 License
 
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
+
 ## 🤝 Contributing
+
+Contributions are welcome! Please feel free to open issues or pull requests to help improve this project.
