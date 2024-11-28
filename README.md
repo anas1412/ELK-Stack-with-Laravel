@@ -28,19 +28,25 @@ Check [ELK-Stack-with-Laravel on github](https://github.com/anas1412/ELK-Stack-w
 ## 🏗️ Project Structure
 
 ```bash
+├── .github/
+│   └── workflows/
+│       ├── backup.yml
+│       └── ci-cd.yml
 ├── apache/
 │   └── 000-default.conf
+├── elasticsearch/
+│   └── elasticsearch.yml
+├── kibana/
+│   └── kibana.yml
 ├── logstash/
+│   │   └── config/
+│   │       └── logstash.yml
 │   │   └── pipeline/
 │   │       └── laravel.conf
 ├── php/
 │   └── php.ini
 ├── src/
 │   └── [Laravel Project Files]
-├── .github/
-│   └── workflows/
-│       ├── ci-cd.yml
-│       └── backup.yml
 ├── Dockerfile
 ├── docker-compose.yml
 └── wait-for-it.sh
@@ -98,19 +104,27 @@ git clone https://github.com/anas1412/ELK-Stack-with-Laravel.git
 cd ELK-Stack-with-Laravel
 ```
 
-### Add your project:
+### Add a laravel project:
+
+Add your own project and renaume it to `src/`. Ensure the project is properly configured and accessible.
 
 ```bash
-cd src
-rm -rf add-your-laravel-project-here && git clone [your-project-url]
+git clone [your-project-url]
+mv [your-project-name] /src
 ```
 
-OR if you want to test it out on a new laravel project before:
+OR if you want to test it out on a new laravel project before moving forward:
 
 ```bash
-cd src
-rm -rf add-your-laravel-project-here && composer create-project laravel/laravel .
+composer create-project laravel/laravel src
 ```
+
+N.B:
+
+- Don't forget to change `DB_DATABASE` etc .. in `docker-compose.yml` to match your new project's database name.
+- Don't forget to make changes to Github Secrets to match your new project's credentials.
+- Don't forget to make changes to Github Action workflows to match your project's credentials.
+- Don't forget to make changes to `php.ini` & `000-default.conf` to match your new project's requirements.
 
 ### Start the stack:
 
@@ -121,7 +135,7 @@ docker-compose up -d --build
 
 ### Access your services:
 
-- Laravel Application: http://localhost:8080
+- Laravel Application: http://localhost
 - Kibana Dashboard: http://localhost:5601
 - Elasticsearch: http://localhost:9200
 
@@ -132,10 +146,27 @@ docker-compose up -d --build
 Elasticsearch
 
 ```yaml
-cluster.name: "docker-cluster"
-network.host: 0.0.0.0
-discovery.type: single-node
-xpack.security.enabled: true
+cluster.name: "elasticsearch"
+network.host: localhost
+```
+
+Kibana
+
+```yaml
+server.name: kibana
+server.host: "0.0.0.0"
+elasticsearch.hosts: ["http://elasticsearch:9200"]
+monitoring.ui.container.elasticsearch.enabled: true
+```
+
+Logstash
+
+```yaml
+xpack.monitoring.enabled: true
+xpack.monitoring.elasticsearch.hosts: ["http://elasticsearch:9200"]
+http.host: 0.0.0.0
+path.logs: /var/log/logstash
+log.level: debug
 ```
 
 Logstash Pipeline Configuration
@@ -144,27 +175,42 @@ Logstash Pipeline Configuration
 input {
   file {
     type => "laravel-logs"
-    path => "/var/www/html/storage/logs/laravel*.log"
+    path => "/var/www/html/storage/logs/laravel.log"
     start_position => "beginning"
     sincedb_path => "/dev/null"
-    codec => json
+    codec => plain { charset => "UTF-8" }
   }
 }
 
 filter {
+  grok {
+    match => { "message" => "%{TIMESTAMP_ISO8601:timestamp} %{LOGLEVEL:log_level}  %{GREEDYDATA:message}" }
+  }
+  mutate {
+    add_field => {
+      "timestamp" => "%{timestamp}"
+      "log_level" => "%{log_level}"
+      "message" => "%{message}"
+    }
+  }
   json {
     source => "message"
+    target => "json_message"
   }
 }
 
 output {
   elasticsearch {
-    hosts => ["elasticsearch:9200"]
-    user => "elastic"
-    password => "${ELASTIC_PASSWORD}"
+    hosts => ["http://elasticsearch:9200"]
     index => "laravel-logs-%{+YYYY.MM.dd}"
+    index_settings => {
+      "number_of_replicas" => 0  # Disable replicas for this index
+    }
   }
-
+  # Optional: Output to stdout for debugging purposes
+  stdout {
+    codec => rubydebug
+  }
   slack {
     url => "${SLACK_WEBHOOK_URL}"
     channel => "#alerts"
@@ -265,12 +311,7 @@ jobs:
 
       # Optional Step: Download a new Laravel project or change this with your project URL
       - name: Set up a new Laravel project
-        run: |
-          ls
-          cd ./src
-          rm -rf add-your-laravel-project-here  # Ensure clean start if needed
-          composer create-project --prefer-dist laravel/laravel . --no-interaction
-          cd ..
+        run: composer create-project --prefer-dist laravel/laravel src --no-interaction
 
       # Step 4: Build Docker Images
       - name: Build Docker Images
