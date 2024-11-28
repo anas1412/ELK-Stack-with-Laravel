@@ -1,7 +1,15 @@
 # ELK-Stack-with-Laravel
 
+<div align="center">
+    <img src="https://github.com/anas1412/ELK-Stack-with-Laravel/actions/workflows/ci-cd.yml/badge.svg" alt="CI/CD Pipeline">
+    <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT License">
+    <img src="https://visitor-badge.laobi.icu/badge?page_id=anas1412.ELK-Stack-with-Laravel" alt="Visitors">
+</div>
+
 A comprehensive Laravel application deployment setup integrating Docker, ELK Stack (Elasticsearch, Logstash, Kibana), with advanced logging, monitoring, and automated DevOps features.
 Check [ELK-Stack-with-Laravel on github](https://github.com/anas1412/ELK-Stack-with-Laravel) for more information.
+
+## 🖼️ Architecture Mockup
 
 <img src="ELK-Stack-with-Laravel-Architecture.png" alt="ELK Stack Architecture">
 <img src="ELK-monitoring.png" alt="ELK Monitoring">
