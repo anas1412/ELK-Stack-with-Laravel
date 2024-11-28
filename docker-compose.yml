@@ -98,6 +98,7 @@ services:
       #- ELASTICSEARCH_PASSWORD=elastic_password
       - LS_JAVA_OPTS=-Xmx1g -Xms1g #This limits Logstash to 1GB of heap memory
       - LOGSTASH_LOG_LEVEL=debug # Add debug level for more detailed logs
+      - path.data=/tmp/logstash-data # Set path.data to a non-persistent location
     networks:
       - laravel-network
     volumes:
